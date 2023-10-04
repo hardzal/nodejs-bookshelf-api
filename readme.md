@@ -2,7 +2,7 @@
 - [x] API Menggunakan Port 9000
 - [x] API dijalankan dengan perintah ``npm run start``
 - [x] API dapat menyimpan buku
-- [ ] API dapat menampilkan seluruh buku
+- [x] API dapat menampilkan seluruh buku
 - [ ] API dapat menampilkan detail buku
 - [ ] API dapat mengubah buku
 - [ ] API dapat menghapus buku
