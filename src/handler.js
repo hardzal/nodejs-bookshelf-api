@@ -65,21 +65,58 @@ const addBookHandler = (request, h) => {
 };
 
 const getAllBookHandler = (request, h) => {
+    
     if(books.length > 0) {
+        const query = request.query;
+
+        //mengecek apakah query tersedia
+        if (Object.keys(query).length) {
+            let data = [];
+            let filter_data = [];
+
+            for(key in query) {
+                if(key === "name") {
+                    // mencari string
+                    filter_data = books.
+                        filter((book) => book[key].toLowerCase().includes(query[key].toLowerCase()));
+                } else {
+                    filter_data = books
+                        .filter((book) => book[key] == query[key]);
+                } 
+            }
+            
+            data = filter_data.map((book) => {
+                return {
+                    id: book.id,
+                    name: book.name,
+                    publisher: book.publisher,
+                }
+            });
+
+            const response = h.response({
+                status: 'success',
+                message: 'Berhasil mendapatkan data buku',
+                data: {books: data},
+            });
+
+            response.code(200);
+            response.header('Access-Control-Allow-Origin', '*');
+    
+            return response;
+        } 
+
         const data = books.map((book) => {
             return {
                 id: book.id,
                 name: book.name,
                 publisher: book.publisher,
             }
-        })
-
+        });
         const response = h.response({
             status: 'success',
             message: 'Berhasil mendapatkan data buku',
             data: {books: data},
-        });
-
+        });            
         response.code(200);
         response.header('Access-Control-Allow-Origin', '*');
 
@@ -120,9 +157,9 @@ const updateBookHandler = (request, h) => {
     const { name, year, author, summary, publisher, pageCount, readPage, reading } = request.payload;
     const updatedAt = new Date().toISOString();
 
-    let message = {"message": 'Buku berhasil diperbarui', "status": true};
+    let message = {"message": 'Buku berhasil diperbarui', "status": true, "http_code": 200};
     const error_messages = {
-        'ERROR_DEFAULT': 'Gagal memperbarui buku. Id tidak ditemukan!',
+        'ERROR_DEFAULT': 'Gagal memperbarui buku. Id tidak ditemukan',
         'ERROR_NAME': 'Gagal memperbarui buku. Mohon isi nama buku',
         'ERROR_PAGECOUNT': 'Gagal memperbarui buku. readPage tidak boleh lebih besar dari pageCount',
     };
@@ -130,28 +167,36 @@ const updateBookHandler = (request, h) => {
     const index = books.findIndex((book) => book.id === id);
 
     if(index !== -1) {
-        books[index] = {
-            ...books[index],
-            name, year, author, summary, publisher, pageCount, readPage, reading,
-            updatedAt,
-        }
-
+        
         // requirement menyimpan buku
         if (typeof name === "undefined" || name === '') {
             message.message = error_messages['ERROR_NAME']            
+            message.status = false;
+            message.http_code = 400;
         } else if (readPage > pageCount) {
             message.message = error_messages['ERROR_PAGECOUNT'];
-        } 
-        
-        const response = h.response({
-            status: 'success',
-            message: message.message,
-        });
-        response.code(200);
-        return response;
+            message.status = false;
+            message.http_code = 400;
+        }
 
+        if (message.status) {
+            books[index] = {
+                ...books[index],
+                name, year, author, summary, publisher, pageCount, readPage, reading,
+                updatedAt,
+            }
+
+            const response = h.response({
+                status: 'success',
+                message: message.message,
+            });
+            response.code(message.http_code);
+            return response;
+        }
     } else {
         message.message = error_messages['ERROR_DEFAULT'];
+        message.status = false;
+        message.http_code = 404;
     }
 
     const response  = h.response({
@@ -159,7 +204,7 @@ const updateBookHandler = (request, h) => {
         message: message['message'],
     });
 
-    response.code(404);
+    response.code(message.http_code);
     return response;
 };
 
@@ -181,10 +226,10 @@ const deleteBookHandler = (request, h) => {
 
     const response = h.response({
         status: 'fail',
-        message: 'Buku tidak ditemukan'
+        message: 'Buku gagal dihapus. Id tidak ditemukan'
     });
 
-    response.code(200);
+    response.code(404);
     return response;
 };
 
