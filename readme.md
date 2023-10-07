@@ -3,9 +3,9 @@
 - [x] API dijalankan dengan perintah ``npm run start``
 - [x] API dapat menyimpan buku
 - [x] API dapat menampilkan seluruh buku
-- [ ] API dapat menampilkan detail buku
-- [ ] API dapat mengubah buku
-- [ ] API dapat menghapus buku
+- [x] API dapat menampilkan detail buku
+- [x] API dapat mengubah buku
+- [x] API dapat menghapus buku
 - [x] API dibuat menggunakan HapiJS
 - [ ] API menyimpan data melalui localStorage
 - [ ] API menyimpan data melalui sessionStorage
@@ -13,3 +13,4 @@
 - [ ] API menyimpan melalui IndexedDB
 
 Readmore [here](https://www.dicoding.com/academies/261/tutorials/14967/submission-guidance)
+- Run all test `newman run postman-test.json --environment postman-environment.json`
